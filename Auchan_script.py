@@ -11,7 +11,6 @@ import concurrent.futures
 import requests
 import xlsxwriter
 
-workbook = xlsxwriter.Workbook('Produits/Auchan.xlsx')
  
 PATH = "web Drivers\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
@@ -106,7 +105,7 @@ urls = [
     "https://www.auchan.fr/meuble-deco-linge-de-maison/linge-de-maison/ca-7882903",
     "https://www.auchan.fr/meuble-deco-linge-de-maison/decoration/ca-201510271523",
 ]
-worksheets = []
+
 adresse = "01600"
 
 def get_link(link):
@@ -120,7 +119,6 @@ def get_link(link):
     return ids
 
 first = True
-sheetCount = 0
 for url in urls:
     start_time = time.time()
     driver.get(url)
@@ -158,7 +156,6 @@ for url in urls:
                     driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
                 except Exception as e:
                     searching = False
-                print(searching)
 
             #Iterating in products ==============================================================================================================
             #Save the html page ==========================================
@@ -199,19 +196,19 @@ for url in urls:
                 infos[i].append(id_product[i][0])
 
             #Save Data to Excel File ===============================================================================
-            worksheets.append(workbook.add_worksheet("Listing" + url.split("/")[-1]))
+            workbook = xlsxwriter.Workbook('Produits/Auchan/Auchan_' + url.split("/")[-3] + '_' + url.split("/")[-2] + '.xlsx')
+            worksheet = workbook.add_worksheet("Listing")
 
             # Add a table to the worksheet.
-            worksheets[sheetCount].add_table('A1:D{0}'.format(len(infos)), {'data': infos,
+            worksheet.add_table('A1:D{0}'.format(len(infos)), {'data': infos,
                                         'columns': [{'header': 'DESIGNATION'},
                                                     {'header': 'IMAGE'},
                                                     {'header': 'PRIX'},
                                                     {'header': 'CODE_BAR'},
                                                     ]})
-            sheetCount += 1
+            workbook.close()
             print("--- %s seconds ---" % (time.time() - start_time))
-        finally:
-            continue
+        except:
+            pass
 print("End")
-workbook.close()
 driver.quit()
