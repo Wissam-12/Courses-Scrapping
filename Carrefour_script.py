@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import xlsxwriter
+import os
 
 def chunks(l, n):
     """Yield n number of striped chunks from l."""
@@ -42,7 +43,7 @@ categories = [
 
 start = time.time()
 PATH = "Web Drivers\chromedriver.exe"
-adresse = "38000"
+adresse = "75012"
 
 driver = webdriver.Chrome(PATH)
 
@@ -134,6 +135,11 @@ finally :
                         continue
                 
                 #Save Data to Excel File ===============================================================================
+                #Create Folder if not exist
+                if not os.path.exists('Produits/Carrefour'):
+                    os.makedirs('Produits/Carrefour')
+                
+                #Create ExcelFile
                 workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour-'+ cat +'.xlsx')
                 worksheet = workbook.add_worksheet("Listing")
 

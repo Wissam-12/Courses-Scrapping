@@ -1,6 +1,5 @@
 from email.errors import FirstHeaderLineIsContinuationDefect
 from lib2to3.pgen2.driver import Driver
-from os import link
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,6 +9,7 @@ from bs4 import BeautifulSoup
 import concurrent.futures
 import requests
 import xlsxwriter
+import os
 
  
 PATH = "web Drivers\chromedriver.exe"
@@ -196,6 +196,11 @@ for url in urls:
                 infos[i].append(id_product[i][0])
 
             #Save Data to Excel File ===============================================================================
+            #Create Folder if not exist
+                if not os.path.exists('Produits/Auchan'):
+                    os.makedirs('Produits/Auchan')
+                
+            #Create ExcelFile
             workbook = xlsxwriter.Workbook('Produits/Auchan/Auchan_' + url.split("/")[-3] + '_' + url.split("/")[-2] + '.xlsx')
             worksheet = workbook.add_worksheet("Listing")
 
