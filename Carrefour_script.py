@@ -51,6 +51,7 @@ url = "https://www.carrefour.fr/r/" + categories[0] + "?filters%5BFacet_vendeurs
 
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = -1
+all_data = True
 
 driver.get(url)
 first = True #Check if driver got first page
@@ -61,22 +62,23 @@ try :
     myCookies.click()
 finally :
     try:
-        #Choosing Drive ===========================================================================================================================
-        choose_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'pill-group__action')))
-        choose_drive.click()
-        results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
-        search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
-        search.send_keys(adresse+'\n')
-        sleep(2)
-        search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
-        search_ok.click()
-        WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'drive-service-list__list-item')))
-        choices = driver.find_elements(By.CLASS_NAME,"drive-service-list__list-item")
-        if len(choices)>0:
-            choice_button_cont = choices[0].find_element(By.CLASS_NAME,"store-card__info-item")
-            choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
-            choice_button.click()
-        sleep(5)
+        if not(all_data):
+            #Choosing Drive ===========================================================================================================================
+            choose_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'pill-group__action')))
+            choose_drive.click()
+            results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
+            search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
+            search.send_keys(adresse+'\n')
+            sleep(2)
+            search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
+            search_ok.click()
+            WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'drive-service-list__list-item')))
+            choices = driver.find_elements(By.CLASS_NAME,"drive-service-list__list-item")
+            if len(choices)>0:
+                choice_button_cont = choices[0].find_element(By.CLASS_NAME,"store-card__info-item")
+                choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
+                choice_button.click()
+            sleep(5)
 
         for cat in categories:
             nb_page = 1
@@ -139,7 +141,6 @@ finally :
                 if not os.path.exists('Produits/Carrefour'):
                     os.makedirs('Produits/Carrefour')
                 
-                #Create ExcelFile
                 workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour-'+ cat +'.xlsx')
                 worksheet = workbook.add_worksheet("Listing")
 

@@ -107,6 +107,7 @@ urls = [
 ]
 
 adresse = "01600"
+all_products = True
 
 def get_link(link):
     ids = []
@@ -127,26 +128,29 @@ for url in urls:
         if first:
             myCookies = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID , 'onetrust-accept-btn-handler')))
             myCookies.click()
+            if all_products:
+                first = False
     finally:
         try:
-            if first:
-                #Choosing Drive =======================================================================================================
-                button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME , 'context-header__button')))
-                button.click()
-                search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
-                search.send_keys(adresse)
-                suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
-                elem = suggestions.find_element(By.TAG_NAME , 'li')
-                elem.click()
-                WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
-                choices = driver.find_elements(By.CLASS_NAME , 'btnJourneySubmit')
-                if len(choices) > 1:
-                    choice = choices[1]
-                else:
-                    choice = choices[0]
-                choice.click()
-                first = False
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
+            if not(all_products):
+                if first:
+                    #Choosing Drive =======================================================================================================
+                    button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME , 'context-header__button')))
+                    button.click()
+                    search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
+                    search.send_keys(adresse)
+                    suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
+                    elem = suggestions.find_element(By.TAG_NAME , 'li')
+                    elem.click()
+                    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
+                    choices = driver.find_elements(By.CLASS_NAME , 'btnJourneySubmit')
+                    if len(choices) > 1:
+                        choice = choices[1]
+                    else:
+                        choice = choices[0]
+                    choice.click()
+                    first = False
+                WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
             #Navigating pages =======================================================================================================
             searching = True
             while searching:
@@ -180,10 +184,12 @@ for url in urls:
                         image = img_elem['srcset']
                     elif 'data-srcset' in img_elem.attrs:
                         image = img_elem['data-srcset']
-                    name = item.find(class_='product-thumbnail__description')
-                    price = item.find(class_='product-price')
+                    name = item.find(class_='product-thumbnail__description').text
+                    price = "NULL"
+                    if not(all_products):
+                        price = item.find(class_='product-price').text
                     cpt+=1
-                    infos.append([name.text.replace('\n','').replace('\t',''), image, price.text])
+                    infos.append([name.replace('\n','').replace('\t',''), image, price])
                     links.append(id_link)
                 except:
                     pass
@@ -199,8 +205,7 @@ for url in urls:
             #Create Folder if not exist
                 if not os.path.exists('Produits/Auchan'):
                     os.makedirs('Produits/Auchan')
-                
-            #Create ExcelFile
+            
             workbook = xlsxwriter.Workbook('Produits/Auchan/Auchan_' + url.split("/")[-3] + '_' + url.split("/")[-2] + '.xlsx')
             worksheet = workbook.add_worksheet("Listing")
 
