@@ -1,0 +1,48 @@
+from time import sleep
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from bs4 import BeautifulSoup
+
+PATH = "Web Drivers\chromedriver.exe"
+driver = webdriver.Chrome(PATH)
+
+url = "https://www.carrefour.fr/"
+driver.get(url)
+categories = []
+
+try :
+    myCookies = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID , 'onetrust-reject-all-handler')))
+    myCookies.click()
+finally :
+    try:
+        rayons_button = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID , 'data-rayons')))
+        rayons_button.click()
+        
+        items = driver.find_elements(By.CSS_SELECTOR,'.nav-item__menu.nav-item__menu-level-0 li')
+        for item in items:
+            try:
+                button = WebDriverWait(item,10).until(EC.element_to_be_clickable((By.TAG_NAME,'a')))
+                name = item.find_element(By.CLASS_NAME,'nav-item__content__name').text
+                image = item.find_element(By.CSS_SELECTOR,'.nav-item__icon img').get_attribute('src')
+                button.click()
+                WebDriverWait(item, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR , '.nav-item.nav-item--see-all a')))
+                link = item.find_element(By.CSS_SELECTOR,'.nav-item.nav-item--see-all a').get_attribute('href')
+                link_split = link.split('/')
+                categorie_id = name
+                if len(link_split)>0:
+                    categorie_id = link_split[-1]
+
+                categories.append({
+                    "CATEGORIE_ID":categorie_id,
+                    "CATEGORIE_NOM":name,
+                    "IMAGE":image,
+                })
+                print(name,image,categorie_id)
+            except:
+                pass
+    except Exception as e:
+        print(e)
+        print("End")
+        #driver.quit()
