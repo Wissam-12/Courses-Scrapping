@@ -46,9 +46,10 @@ categories = [
 
 start = time.time()
 PATH = "Web Drivers\chromedriver.exe"
-adresse = "75012"
+adresse = "16000"
 
 driver = webdriver.Chrome(PATH)
+driver.maximize_window()
 
 url = "https://www.carrefour.fr/r/" + categories[0] + "?filters%5BFacet_vendeurs%5D%5B0%5D=Carrefour&noRedirect=0"
 
@@ -72,8 +73,12 @@ finally :
             choose_drive.click()
             results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
             search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
-            search.send_keys(adresse+'\n')
-            sleep(2)
+            search.send_keys(adresse)
+            search.click()
+            sleep(1)
+            search_choices = driver.find_elements(By.CSS_SELECTOR,'ul.suggestions-input__suggestions li')
+            search_choices[1].click()
+            sleep(1)
             search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
             search_ok.click()
             WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'drive-service-list__list-item')))
@@ -154,10 +159,10 @@ finally :
                     
                     #Save Data to Excel File ===============================================================================
                     #Create Folder if not exist
-                    if not os.path.exists('Produits/Carrefour'):
-                        os.makedirs('Produits/Carrefour')
+                    if not os.path.exists('Produits/Carrefour_hyper'):
+                        os.makedirs('Produits/Carrefour_hyper')
                     
-                    workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour-'+ cat +'.xlsx')
+                    workbook = xlsxwriter.Workbook('Produits/Carrefour_hyper/Carrefour-'+ cat +'.xlsx')
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
