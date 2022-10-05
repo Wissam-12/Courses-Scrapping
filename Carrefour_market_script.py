@@ -76,7 +76,10 @@ finally :
             search.send_keys(adresse)
             search.click()
             sleep(1)
-            search_choices = driver.find_elements(By.CSS_SELECTOR,'ul.suggestions-input__suggestions li')
+            search_choices = []
+            while len(search_choices)<2:
+                search_choices = driver.find_elements(By.CSS_SELECTOR,'ul.suggestions-input__suggestions li')
+                sleep(1)
             search_choices[1].click()
             sleep(1)
             search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
