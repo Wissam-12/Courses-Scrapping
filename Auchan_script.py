@@ -122,9 +122,14 @@ def get_link(link):
     temp_soup = BeautifulSoup(page.content,"html.parser")
     features = temp_soup.find_all(class_="product-description__feature-wrapper")
     id = features[len(features)-1].find(class_="product-description__feature-values").text.replace('\n','').replace('\t','')
+    descriptions = temp_soup.select('.product-description__content-wrapper div')
+    description = ''
+    if len(descriptions)>1:
+        description = descriptions[1].get_text()
+    
     # print(id)
     ids.append(id)
-    return ids
+    return description,ids
 
 first = True
 for url in urls:
@@ -220,11 +225,12 @@ for url in urls:
                         pass
                 
                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                    id_product = executor.map(get_link, links)
-                id_product=list(id_product)
-                print(len(id_product),len(infos),len(links))
-                for i in range(0, len(id_product)):
-                    infos[i].append(id_product[i][0])
+                    details_query = list(executor.map(get_link, links))
+                    
+                print(len(details_query),len(infos),len(links))
+                for i in range(0, len(details_query)):
+                    infos[i].append(details_query[i][0])
+                    infos[i].append(details_query[i][1][0])
 
                 data += infos
 
@@ -237,10 +243,11 @@ for url in urls:
             worksheet = workbook.add_worksheet("Listing")
 
             # Add a table to the worksheet.
-            worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+            worksheet.add_table('A1:E{0}'.format(len(data)), {'data': data,
                                         'columns': [{'header': 'DESIGNATION'},
                                                     {'header': 'IMAGE'},
                                                     {'header': 'PRIX'},
+                                                    {'header': 'DESCRIPTION'},
                                                     {'header': 'CODE_BAR'},
                                                     ]})
             workbook.close()
