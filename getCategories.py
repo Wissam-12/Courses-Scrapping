@@ -1,5 +1,22 @@
 import json
+import csv
 from Categories.Auchan_get_Categories import *
+
+def writeToCSV(dataSource,destination):
+    headers = [key for key in list(dataSource[0].keys())]
+    data = []
+    for categorie in dataSource:
+        row = []
+        for key in categorie.keys():
+            row.append(categorie[key])
+        data.append(row)
+
+    with open(destination, 'w', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        # write the header
+        writer.writerow(headers)
+        # write multiple rows
+        writer.writerows(data)
 
 carrefour_categories = [
     {
@@ -76,7 +93,10 @@ carrefour_categories = [
 
 auchan_categories,auchan_sous_categories = getAuchanCategories()
 
-with open('Produits/toutes_categories.json', 'w') as f:
-    json.dump(carrefour_categories+auchan_categories, f)
-with open('Produits/toutes_sous_categories.json', 'w') as f:
-    json.dump(auchan_sous_categories, f)
+# with open('Produits/toutes_categories.json', 'w') as f:
+#     json.dump(carrefour_categories+auchan_categories, f)
+# with open('Produits/toutes_sous_categories.json', 'w') as f:
+#     json.dump(auchan_sous_categories, f)
+
+writeToCSV(carrefour_categories+auchan_categories,'Produits/toutes_categories.csv')
+writeToCSV(auchan_sous_categories,'Produits/toutes_sous_categories.csv')

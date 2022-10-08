@@ -78,7 +78,6 @@ def getAuchanCategories():
                 print("Progrès: "+str(i*100/len(links))+"%")
                 WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'.navigation-layer__link')))
                 items_sel = driver.find_elements(By.CSS_SELECTOR,'.navigation-layer__link')
-                WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'.navigation-layer__link')))
                 try:
                     name = items_sel[i].find_element(By.CLASS_NAME,'navigation-node__title').text.replace('\n','')
                     name = cleanString(name)
@@ -90,8 +89,11 @@ def getAuchanCategories():
                     
                     items_sel[i].click()
                     try:
+                        categories_sel = WebDriverWait(driver,5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'div.sub-navigation.navigation-block.navigationBlock')))
                         button_back = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CSS_SELECTOR,'button.sublevel-head__back')))
-                        time.sleep(3)
+                        if len(categories_sel)>0:
+                            driver.execute_script("arguments[0].scrollIntoView(true);",categories_sel[-1])
+                        time.sleep(10)
                         html = driver.page_source
                         soup = BeautifulSoup(html, "html.parser")
                         items = soup.select('div.sub-navigation.navigation-block.navigationBlock')
@@ -120,7 +122,7 @@ def getAuchanCategories():
                                 "IMAGE":image,
                             })
                         button_back.click()
-                    except:
+                    except Exception as e:
                         driver.get(url)
                         #Clicker sur le button Rayons =========================================
                         rayons_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID , 'navigation')))

@@ -66,20 +66,25 @@ driver.maximize_window()
 url = "https://www.carrefour.fr/r/" + categories[0] + "?filters%5BFacet_vendeurs%5D%5B0%5D=Carrefour&noRedirect=0"
 
 #Set to -1 to make it unlimited ==========================================
-nb_max_pages = 50
+nb_max_pages = 25
 #Change to True to get all Carrefour products without price
-all_products = False
+all_products = True
 
 driver.get(url)
 first = True #Check if driver got first page
 cpt = 0 #Check Progress in categories
 
+#all_products don't have market
+if all_products:
+    magasins = [""]
+
 try :
     myCookies = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID , 'onetrust-reject-all-handler')))
     myCookies.click()
 finally :
-    for id in range(len(magasins)):
+    for index in range(len(magasins)):
         try:
+            found_hyper = False
             if not(all_products):
                 #Choosing Drive ===========================================================================================================================
                 choose_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'pill-group__action')))
@@ -89,7 +94,7 @@ finally :
                     change_drive.click()
                 results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
                 search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
-                search.send_keys(magasins[id])
+                search.send_keys(magasins[index])
                 search.click()
                 sleep(1)
                 search_choices = []
@@ -106,8 +111,6 @@ finally :
                     choice_button_cont = choice.find_element(By.CLASS_NAME,"store-card__info-item")
                     choice_name = choice.find_element(By.CSS_SELECTOR,'.ds-title.ds-title--s').text
 
-                    found_hyper = False
-
                     if checkIfHyper(choice_name):
                         try:
                             choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
@@ -119,11 +122,12 @@ finally :
                 if found_hyper:
                     sleep(5)
 
-            if found_hyper:
+            if found_hyper or all_products:
                 for cat in categories:
                     if not(first):
                         url = "https://www.carrefour.fr/r/" + cat + "?filters%5BFacet_vendeurs%5D%5B0%5D=Carrefour&noRedirect=0"
                         driver.get(url)
+                        WebDriverWait(driver,30).until(EC.presence_of_element_located((By.CLASS_NAME,'product-grid-item')))
                     else:
                         first = False
 
@@ -135,6 +139,7 @@ finally :
                     while sameUrl:
                         if nb_page != 0:
                             driver.get(url+'&page='+str(nb_page+1))
+                            WebDriverWait(driver,30).until(EC.presence_of_element_located((By.CLASS_NAME,'product-grid-item')))
                             searching = True
                         #Begin Searching ======================================================================================================================
                         if "&page=" in driver.current_url:
@@ -155,7 +160,6 @@ finally :
                                         nb_page = int(driver.current_url.split('&page=',1)[1])
                                     else:
                                         nb_page = 1
-                                print(nb_page)
                             except:
                                 searching = False
                                 sameUrl = False
@@ -189,23 +193,40 @@ finally :
                         except:
                             pass
                             
-                    #Save Data to Excel File ===============================================================================
+                    #Save Data to Excel File ==================================================-=============================
                     #Create Folder if not exist
-                    if not os.path.exists('Produits/Carrefour_hyper/Carrefour-'+magasins[id]):
-                        os.makedirs('Produits/Carrefour_hyper/Carrefour-'+magasins[id])
-                    
-                    workbook = xlsxwriter.Workbook('Produits/Carrefour_hyper/Carrefour-'+magasins[id]+'/Carrefour-'+ cat +'.xlsx')
-                    worksheet = workbook.add_worksheet("Listing")
+                    if not(all_products):
+                        if not os.path.exists('Produits/Prix/Carrefour_hyper/Carrefour-'+magasins[index]):
+                            os.makedirs('Produits/Prix/Carrefour_hyper/Carrefour-'+magasins[index])
+                        
+                        workbook = xlsxwriter.Workbook('Produits/Prix/Carrefour_hyper/Carrefour-'+magasins[index]+'/Carrefour-'+ cat +'.xlsx')
+                        worksheet = workbook.add_worksheet("Listing")
 
-                    # Add a table to the worksheet.
-                    worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
-                                                'columns': [{'header': 'CODE_BAR'},
-                                                            {'header': 'IMAGE'},
-                                                            {'header': 'DESIGNATION'},
-                                                            {'header': 'PRIX'},
-                                                            ]})
+                        # Add a table to the worksheet.
+                        worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                                                    'columns': [{'header': 'CODE_BAR'},
+                                                                {'header': 'IMAGE'},
+                                                                {'header': 'DESIGNATION'},
+                                                                {'header': 'PRIX'},
+                                                                ]})
 
-                    workbook.close() 
+                        workbook.close()
+                    else:
+                        if not os.path.exists('Produits/Carrefour'):
+                            os.makedirs('Produits/Carrefour')
+                        
+                        workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour-'+ cat +'.xlsx')
+                        worksheet = workbook.add_worksheet("Listing")
+
+                        # Add a table to the worksheet.
+                        worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                                                    'columns': [{'header': 'CODE_BAR'},
+                                                                {'header': 'IMAGE'},
+                                                                {'header': 'DESIGNATION'},
+                                                                {'header': 'PRIX'},
+                                                                ]})
+
+                        workbook.close()
 
                     #Print Progress
                     cpt+=1
