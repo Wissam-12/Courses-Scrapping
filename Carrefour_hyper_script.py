@@ -13,7 +13,7 @@ import os
 
 magasins = [
     "16000",
-    "72015",
+    "59160",
 ]
 
 
@@ -68,7 +68,7 @@ url = "https://www.carrefour.fr/r/" + categories[0] + "?filters%5BFacet_vendeurs
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = 25
 #Change to True to get all Carrefour products without price
-all_products = True
+all_products = False
 
 driver.get(url)
 first = True #Check if driver got first page
@@ -84,14 +84,23 @@ try :
 finally :
     for index in range(len(magasins)):
         try:
+            print(magasins)
+            print(index)
             found_hyper = False
             if not(all_products):
+                print("enter")
+                if index>0:
+                     driver.execute_script("window.scrollTo(0, 0)")
+                     print("ok")
                 #Choosing Drive ===========================================================================================================================
                 choose_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'pill-group__action')))
                 choose_drive.click()
-                if id>0:
+                # else:
+                #     print("immmm")
+                if index>0:
                     change_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CSS_SELECTOR , '.pl-button-deprecated.drive-service-summary__action.pl-button-deprecated--tertiary')))
                     change_drive.click()
+                print("*****************")
                 results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
                 search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
                 search.send_keys(magasins[index])
