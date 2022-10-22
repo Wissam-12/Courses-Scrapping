@@ -109,24 +109,33 @@ finally:
             cpt = 0
             for item in items:
                 try:
+                    print("*****************************")
                     id_link = "https://www.auchan.fr"+item.find(class_="product-thumbnail__details-wrapper")["href"]
-                    promo = "vide"
+                    promoRef = []
+                    promo = ""
                     productHeader = "vide"
+                    # product-thumbnail__commercials
                     try :
-                        promo = item.find(class_='product-thumbnail__commercials').text
-                    except:
-                        continue
-                    try :
-                        productHeader = item.find(class_='product-thumbnail__header').text
-                    except:
-                        continue
-                    price = item.find(class_='product-price').text
-                    cpt+=1
-                    infos.append([productHeader, promo, price])
-                    print([productHeader, promo, price])
-                    links.append(id_link)
+                        promoRef = item.find_all(class_='product-discount-label')
+                    finally :
+                        try :
+                            promoRef += item.find_all(class_='product-discount')
+                            for onePromo in promoRef:
+                                promo += onePromo.text + " | "
+                            print(promo)
+                        finally:
+                            try :
+                                productHeader = item.find(class_='product-thumbnail__header').text
+                            finally:
+                                price = item.find(class_='product-price').text
+                                cpt+=1
+                                print(cpt)
+                                infos.append([productHeader, promo, price])
+                                print([productHeader, promo, price])
+                                links.append(id_link)
                 except:
-                    pass
+                    print("probleeeeeeeme")
+                    continue
 
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 id_product = executor.map(get_link, links)
