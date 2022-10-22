@@ -113,7 +113,7 @@ finally:
                     promo = "vide"
                     productHeader = "vide"
                     try :
-                        promo = item.find(class_='product-discount').text
+                        promo = item.find(class_='product-thumbnail__commercials').text
                     except:
                         continue
                     try :
