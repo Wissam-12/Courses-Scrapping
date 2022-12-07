@@ -1,6 +1,3 @@
-from email import header
-from email.errors import FirstHeaderLineIsContinuationDefect
-from lib2to3.pgen2.driver import Driver
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
