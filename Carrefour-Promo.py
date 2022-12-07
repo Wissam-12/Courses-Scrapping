@@ -111,44 +111,31 @@ finally :
                 if found_hyper:
                     sleep(5)
 
-            print("what")
             if found_hyper or all_products:
                 # ------------------------------ Nombre de pages ----------------------------------
-                print("here")
                 WebDriverWait(driver,60).until(EC.presence_of_element_located((By.CLASS_NAME , 'search-results-count--promotion')))
-                print("yes")
-                promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text.split[0]
-                print("yes")
-                print(promonb)
-                print("test")
-                print(int(promonb)/30)
-                NBpromoPage = math.ceil(int(promonb)/30)
-                print("proooomoooo")
-                print(NBpromoPage)
+                promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text
+                NBpromoPage = math.ceil(int(promonb.split()[0])/30)
                 # -----------------------------------------------------------------------------------
                 searching = True
                 sameUrl = True
-                nb_page = 185
+                nb_page = 0
                 data = []
                 while sameUrl:
-                    print("cuuurrrent : ")
-                    print(magasins[index])
                     if nb_page != 0:
-                        print("rechaaarge")
                         if(nb_page <= NBpromoPage):
-                            driver.get(url+'?page='+str(nb_page+1))
+                            nb_page += 1
+                            driver.get(url+'?page='+str(nb_page))
                             searching = True
                     while searching:
                         try:
                             footer = driver.find_element(By.ID,"colophon")
                             driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
-                            print(driver.current_url)
                             if "page=" in driver.current_url:
                                 nb_page = int(driver.current_url.split('page=',1)[1])
                             else:
                                 nb_page = 1
-                            print(nb_max_pages)
-                            print(nb_page)
+                            print("-----------------------------------")
                             if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
                                 nb_page_cpt += 1
@@ -158,6 +145,7 @@ finally :
                             
                     #Iterating in products ==============================================================================================================
                     #Save the html page ==========================================
+                    print("save data")
                     WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
                     html = driver.page_source
                     #open the page with beautifulSoup
@@ -182,7 +170,7 @@ finally :
                                     print(promo)
                                 finally:
                                     price = item.find(class_='product-price__amount-value').text
-                                    code = item.find_element(By.CLASS_NAME, 'ds-product-card-refonte').get_attribute("id")
+                                    code = item.find(class_='ds-product-card-refonte')["id"]
                                     data.append([code, promo, price])
                                     print([code, promo, price])
                         except:
