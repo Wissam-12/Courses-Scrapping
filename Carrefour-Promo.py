@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import xlsxwriter
 import os
+import math
 
 
 #Liste de codes postaux ========================================================================================
@@ -46,7 +47,8 @@ driver.maximize_window()
 url = "https://www.carrefour.fr/promotions"
 
 #Set to -1 to make it unlimited ==========================================
-nb_max_pages = 25
+nb_max_pages = 5
+nb_page_cpt = 1
 #Change to True to get all Carrefour products without price
 all_products = False
 
@@ -109,98 +111,118 @@ finally :
                 if found_hyper:
                     sleep(5)
 
+            print("what")
             if found_hyper or all_products:
-                    searching = True
-                    sameUrl = True
-                    nb_page = 0
-                    nb_page_cpt = 1
-                    data = []
-                    while sameUrl:
-                        if nb_page != 0:
+                # ------------------------------ Nombre de pages ----------------------------------
+                print("here")
+                WebDriverWait(driver,60).until(EC.presence_of_element_located((By.CLASS_NAME , 'search-results-count--promotion')))
+                print("yes")
+                promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text.split[0]
+                print("yes")
+                print(promonb)
+                print("test")
+                print(int(promonb)/30)
+                NBpromoPage = math.ceil(int(promonb)/30)
+                print("proooomoooo")
+                print(NBpromoPage)
+                # -----------------------------------------------------------------------------------
+                searching = True
+                sameUrl = True
+                nb_page = 185
+                data = []
+                while sameUrl:
+                    print("cuuurrrent : ")
+                    print(magasins[index])
+                    if nb_page != 0:
+                        print("rechaaarge")
+                        if(nb_page <= NBpromoPage):
                             driver.get(url+'?page='+str(nb_page+1))
                             searching = True
-                        while searching:
-                            try:
-                                footer = driver.find_element(By.ID,"colophon")
-                                driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
-                                if "?page=" in driver.current_url:
-                                    nb_page = int(driver.current_url.split('?page=',1)[1])
-                                else:
-                                    nb_page = 1
-                                if nb_page>=nb_max_pages*nb_page_cpt:
-                                    searching = False
-                                    nb_page_cpt += 1
-                            except Exception as e:
+                    while searching:
+                        try:
+                            footer = driver.find_element(By.ID,"colophon")
+                            driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
+                            print(driver.current_url)
+                            if "page=" in driver.current_url:
+                                nb_page = int(driver.current_url.split('page=',1)[1])
+                            else:
+                                nb_page = 1
+                            print(nb_max_pages)
+                            print(nb_page)
+                            if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
-                                sameUrl = False
-                                
-                        #Iterating in products ==============================================================================================================
-                        #Save the html page ==========================================
-                        WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
-                        html = driver.page_source
-                        #open the page with beautifulSoup
-                        soup = BeautifulSoup(html, "html.parser")
-                        print("-------------------")
-                        items = soup.find_all(class_="product-grid-item")
-                        print(len(items))
-                        #iterate in products
-                        cpt = 0
-                        for item in items:
-                            try:
-                                print("*****************************")
-                                promoRef = []
-                                promo = ""
-                                # product-thumbnail__commercials
+                                nb_page_cpt += 1
+                        except Exception as e:
+                            searching = False
+                            sameUrl = False
+                            
+                    #Iterating in products ==============================================================================================================
+                    #Save the html page ==========================================
+                    WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
+                    html = driver.page_source
+                    #open the page with beautifulSoup
+                    soup = BeautifulSoup(html, "html.parser")
+                    print("-------------------")
+                    items = soup.find_all(class_="product-grid-item")
+                    print(len(items))
+                    #iterate in products
+                    cpt = 0
+                    for item in items:
+                        try:
+                            print("*****************************")
+                            promoRef = []
+                            promo = ""
+                            # product-thumbnail__commercials
+                            try :
+                                promoRef = item.find_all(class_='promotion-description__labels')
+                            finally :
                                 try :
-                                    promoRef = item.find_all(class_='promotion-description__labels')
-                                finally :
-                                    try :
-                                        for onePromo in promoRef:
-                                            promo += onePromo.text + " | "
-                                        print(promo)
-                                    finally:
-                                        price = item.find(class_='product-price__amount-value').text
-                                        data.append([promo, price])
-                                        print([promo, price])
-                            except:
-                                print("probleeeeeeeme")
-                                continue
-                        
+                                    for onePromo in promoRef:
+                                        promo += onePromo.text + " | "
+                                    print(promo)
+                                finally:
+                                    price = item.find(class_='product-price__amount-value').text
+                                    code = item.find_element(By.CLASS_NAME, 'ds-product-card-refonte').get_attribute("id")
+                                    data.append([code, promo, price])
+                                    print([code, promo, price])
+                        except:
+                            print("probleeeeeeeme")
+                            continue
                     
-                    #Save Data to Excel File ==================================================-=============================
-                    #Create Folder if not exist
-                    if not(all_products):
-                        if not os.path.exists('Promotions/Carrefour_hyper'):
-                            os.makedirs('Promotions/Carrefour_hyper')
-                        
-                        workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/Carrefour-'+magasins[index]+'.xlsx')
-                        worksheet = workbook.add_worksheet("Listing")
+                
+                #Save Data to Excel File ==================================================-=============================
+                #Create Folder if not exist
+                if not(all_products):
+                    if not os.path.exists('Promotions/Carrefour_hyper'):
+                        os.makedirs('Promotions/Carrefour_hyper')
+                    
+                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/Carrefour-'+magasins[index]+'.xlsx')
+                    worksheet = workbook.add_worksheet("Listing")
 
-                        # Add a table to the worksheet.
-                        worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
-                                                    'columns': [{'header': 'CODE_BAR'},
-                                                                {'header': 'IMAGE'},
-                                                                {'header': 'DESIGNATION'},
-                                                                {'header': 'PRIX'},
-                                                                ]})
-                        workbook.close()
-                    else:
-                        if not os.path.exists('Promotions/Carrefour'):
-                            os.makedirs('Promotions/Carrefour')
-                        
-                        workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour.xlsx')
-                        worksheet = workbook.add_worksheet("Listing")
+                    # Add a table to the worksheet.
+                    worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                                                'columns': [{'header': 'CODE_BAR'},
+                                                            {'header': 'PROMOTION'},
+                                                            {'header': 'PRIX'},
+                                                            ]})
+                    workbook.close()
+                else:
+                    if not os.path.exists('Promotions/Carrefour'):
+                        os.makedirs('Promotions/Carrefour')
+                    
+                    workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour.xlsx')
+                    worksheet = workbook.add_worksheet("Listing")
 
-                        # Add a table to the worksheet.
-                        worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
-                                                    'columns': [{'header': 'CODE_BAR'},
-                                                                {'header': 'IMAGE'},
-                                                                {'header': 'DESIGNATION'},
-                                                                {'header': 'PRIX'},
-                                                                ]})
+                    # Add a table to the worksheet.
+                    worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                                                'columns': [{'header': 'CODE_BAR'},
+                                                            {'header': 'IMAGE'},
+                                                            {'header': 'DESIGNATION'},
+                                                            {'header': 'PRIX'},
+                                                            ]})
 
-                        workbook.close()
-                        
+                    workbook.close()
+                    
             else:
                 print("Aucun Hyper pour ce code postal")  
         except:
