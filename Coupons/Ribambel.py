@@ -35,7 +35,7 @@ finally :
             imageMarque = "https://www.ribambel.com" + image['src'] + " + "
         date = item.find(class_= 'voucherOverlay').find(class_= 'pt-1').text.replace("Jusqu'au ", "")
         print([nom, reduction, description, marque, date, imageCoupon, imageMarque])
-        data.append([nom, reduction, description, marque, date, imageCoupon, imageMarque])
+        data.append([nom, "", reduction, description, marque, date, imageCoupon, imageMarque, "Offre de remboursement + Coupon à imprimer", url])
     if not os.path.exists('CouponsResults'):
         os.makedirs('CouponsResults')
     
@@ -43,14 +43,17 @@ finally :
     worksheet = workbook.add_worksheet("Listing")
 
     # Add a table to the worksheet.
-    worksheet.add_table('A1:G{0}'.format(len(data)), {'data': data,
+    worksheet.add_table('A1:J{0}'.format(len(data)), {'data': data,
                                 'columns': [{'header': 'NOM'},
+                                            {'header': 'CODE_BAR'},
                                             {'header': 'REDUCTION'},
                                             {'header': 'DESCRIPTION'},
                                             {'header': 'MARQUE'},
                                             {'header': 'DATE_VALIDITE'},
                                             {'header': 'IMAGE_COUPON'},
-                                            {'header': 'IMAGE_MARQUE'}
+                                            {'header': 'IMAGE_MARQUE'},
+                                            {'header': 'TYPE_COUPON'},
+                                            {'header': 'LIEN'}
                                             ]})
 
     workbook.close()
