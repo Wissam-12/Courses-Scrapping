@@ -34,8 +34,8 @@ def getArticleInfo(art):
     except:
         return []
 
-def checkIfHyper(name):
-    return not("Market" in name) and not("City " in name) and not("Express " in name) and not("Contact " in name) and not("Bio " in name) and not("Montagne " in name)
+def checkIfMarket(name):
+    return "Market" in name
 
 
 start = time.time()
@@ -104,7 +104,7 @@ finally:
                     choice_button_cont = choice.find_element(By.CLASS_NAME,"store-card__info-item")
                     choice_name = choice.find_element(By.CSS_SELECTOR,'.ds-title.ds-title--s').text
 
-                    if checkIfHyper(choice_name):
+                    if checkIfMarket(choice_name):
                         try:
                             choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
                             choice_button.click()
@@ -185,10 +185,10 @@ finally:
                 #Save Data to Excel File ==================================================-=============================
                 #Create Folder if not exist
                 if not(all_products):
-                    if not os.path.exists('Promotions/Carrefour_hyper'):
-                        os.makedirs('Promotions/Carrefour_hyper')
+                    if not os.path.exists('Promotions/Carrefour_market'):
+                        os.makedirs('Promotions/Carrefour_market')
                     
-                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/Carrefour-'+magasins[index]+'.xlsx')
+                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_market/Carrefour-'+magasins[index]+'.xlsx')
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
@@ -216,7 +216,7 @@ finally:
                     workbook.close()
                     
             else:
-                print("Aucun Hyper pour ce code postal:",magasins[index])  
+                print("Aucun Market pour ce code postal:",magasins[index])  
         except:
             pass
         #Print Progress
