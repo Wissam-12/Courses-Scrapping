@@ -39,7 +39,6 @@ def checkIfHyper(name):
     return not("Supermarché" in name)
 
 first = True
-start_time = time.time()
 driver.get(url)
 
 try :
@@ -52,6 +51,7 @@ finally:
     for index in range(len(magasins)):
         found_magasin = False
         first = True
+        start_time = time.time()
         try:
             if not(all_products):
                 if first:
@@ -69,11 +69,15 @@ finally:
 
                     choice = None
                     for i in range(len(choices)):
-                        name = choices[i].find_element(By.CLASS_NAME,'journey-offering-context__name').text
-                        if(checkIfHyper(name)):
-                            choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
-                            found_magasin = True
-                            break
+                        try:
+                            name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
+                            print(name)
+                            if(checkIfHyper(name)):
+                                choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
+                                found_magasin = True
+                                break
+                        except:
+                            pass
                     
                     if found_magasin:
                         choice.click()
@@ -176,8 +180,10 @@ finally:
                                                         ]})
                 workbook.close()
                 print("--- %s seconds ---" % (time.time() - start_time))
+            else:
+                print("Aucun Hypermarché Auchan pour cette adresse : "+magasins[index])
         except Exception as e:
             print(e)
             pass
 print("End")
-# driver.quit()
+driver.quit()

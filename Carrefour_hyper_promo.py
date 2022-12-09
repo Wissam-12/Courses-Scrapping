@@ -44,7 +44,7 @@ PATH = "Web Drivers\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 driver.maximize_window()
 
-url = "https://www.carrefour.fr/promotions"
+url = "https://www.carrefour.fr/"
 
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = 5
@@ -63,7 +63,11 @@ if all_products:
 try :
     myCookies = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID , 'onetrust-reject-all-handler')))
     myCookies.click()
-finally :
+    rayonsButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'mainbar__nav-toggle-icon')))
+    rayonsButton.click()
+    promotionsButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'nav-item__link--promotion')))
+    promotionsButton.click()
+finally:
     for index in range(len(magasins)):
         try:
             print(magasins)

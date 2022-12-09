@@ -21,7 +21,8 @@ nb_max_pages = 3
 url = "https://www.auchan.fr/boutique/promos"
 
 magasins = [
-    "Belley"
+    "Massieux",
+    "Marseille"
 ]
 all_products = False
 
@@ -39,7 +40,6 @@ def checkIfSuper(name):
     return "Supermarché" in name
 
 first = True
-start_time = time.time()
 driver.get(url)
 
 try :
@@ -52,6 +52,9 @@ finally:
     for index in range(len(magasins)):
         found_magasin = False
         first = True
+        start_time = time.time()
+        # if index>0:
+        #     driver.get(url)
         try:
             if not(all_products):
                 if first:
@@ -65,14 +68,16 @@ finally:
                     elem.click()
                     WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
                     choices = driver.find_elements(By.CLASS_NAME , 'journey-offering-context__wrapper')
-
                     choice = None
                     for i in range(len(choices)):
-                        name = choices[i].find_element(By.CLASS_NAME,'journey-offering-context__name').text
-                        if(checkIfSuper(name)):
-                            choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
-                            found_magasin = True
-                            break
+                        try:
+                            name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
+                            if(checkIfSuper(name)):
+                                choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
+                                found_magasin = True
+                                break
+                        except:
+                            pass
                     
                     if found_magasin:
                         choice.click()
@@ -160,10 +165,10 @@ finally:
 
                 # Save Data to Excel File ===============================================================================
                 # Create Folder if not exist
-                    if not os.path.exists('Promotions/Auchan_hyper'):
-                        os.makedirs('Promotions/Auchan_hyper')
+                    if not os.path.exists('Promotions/Auchan_super'):
+                        os.makedirs('Promotions/Auchan_super')
                 
-                workbook = xlsxwriter.Workbook('Promotions/Auchan_hyper/Auchan_' + magasins[index] + '.xlsx')
+                workbook = xlsxwriter.Workbook('Promotions/Auchan_super/Auchan_' + magasins[index] + '.xlsx')
                 worksheet = workbook.add_worksheet("Listing")
 
                 # Add a table to the worksheet.
@@ -175,8 +180,10 @@ finally:
                                                         ]})
                 workbook.close()
                 print("--- %s seconds ---" % (time.time() - start_time))
+            else:
+                print("Aucun Supermarché Auchan pour cette adresse : "+magasins[index])
         except Exception as e:
             print(e)
             pass
 print("End")
-# driver.quit()
+driver.quit()
