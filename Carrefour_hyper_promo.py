@@ -129,7 +129,7 @@ finally:
                     if nb_page != 0:
                         if(nb_page <= NBpromoPage):
                             nb_page += 1
-                            driver.get(url+'?page='+str(nb_page))
+                            driver.refresh()
                             searching = True
                     while searching:
                         try:
