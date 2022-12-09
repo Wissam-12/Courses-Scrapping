@@ -158,7 +158,6 @@ finally:
                     items = soup.find_all(class_="product-grid-item")
                     print(len(items))
                     #iterate in products
-                    cpt = 0
                     for item in items:
                         try:
                             print("*****************************")
