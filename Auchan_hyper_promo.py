@@ -31,7 +31,7 @@ def get_link(link):
     temp_soup = BeautifulSoup(page.content,"html.parser")
     features = temp_soup.find_all(class_="product-description__feature-wrapper")
     id = features[len(features)-1].find(class_="product-description__feature-values").text.replace('\n','').replace('\t','')
-    # print(id)
+    
     ids.append(id)
     return ids
 
@@ -71,7 +71,7 @@ finally:
                     for i in range(len(choices)):
                         try:
                             name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
-                            print(name)
+                            
                             if(checkIfHyper(name)):
                                 choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
                                 found_magasin = True
@@ -119,16 +119,14 @@ finally:
                     html = driver.page_source
                     #open the page with beautifulSoup
                     soup = BeautifulSoup(html, "html.parser")
-                    # print("-------------------")
                     items = soup.find_all(class_="list__item")
-                    # print(len(items))
+                    
                     links = []
                     infos = []
                     #iterate in products
                     cpt = 0
                     for item in items:
                         try:
-                            #print("*****************************")
                             id_link = "https://www.auchan.fr"+item.find(class_="product-thumbnail__details-wrapper")["href"]
                             promoRef = []
                             promo = ""
@@ -141,7 +139,7 @@ finally:
                                     promoRef += item.find_all(class_='product-discount')
                                     for onePromo in promoRef:
                                         promo += onePromo.text + " | "
-                                    # print(promo)
+                                    
                                 finally:
                                     try :
                                         productHeader = item.find(class_='product-thumbnail__header').text
@@ -149,16 +147,15 @@ finally:
                                         price = item.find(class_='product-price').text
                                         cpt+=1
                                         infos.append([productHeader, promo, price])
-                                        print(cpt ,[productHeader, promo, price])
+                                        
                                         links.append(id_link)
-                        except:
-                            # print("probleeeeeeeme")
-                            continue
+                        except Exception as e:
+                            pass
 
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         id_product = executor.map(get_link, links)
                     id_product=list(id_product)
-                    # print(len(id_product),len(infos),len(links))
+
                     for i in range(0, len(id_product)):
                         infos[i].append(id_product[i][0])
                     data += infos
@@ -181,11 +178,11 @@ finally:
                                                             ]})
                     workbook.close()
                 
-                print("--- %s seconds ---" % (time.time() - start_time))
+                print((index + 1)*100/len(magasins),"%","--- %s seconds ---" % (time.time() - start_time))
             else:
                 print("Aucun Hypermarché Auchan pour cette adresse : "+magasins[index])
         except Exception as e:
             print(e)
             pass
-print("End")
+
 driver.quit()

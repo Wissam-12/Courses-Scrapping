@@ -214,6 +214,6 @@ finally:
             pass
         #Print Progress
         cpt+=1
-        print(cpt*100/len(magasins),"%"," time : ", time.time() - start)
+        print(cpt*100/len(magasins),"%","--- %s seconds ---" % (time.time() - start))
 
 driver.quit()
