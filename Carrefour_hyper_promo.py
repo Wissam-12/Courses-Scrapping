@@ -11,7 +11,10 @@ import math
 
 
 #Liste de codes postaux ========================================================================================
-
+magasins_ref =[
+    "CARREFOUR_HYPER1",
+    "CARREFOUR_HYPER2",
+]
 magasins = [
     "16000",
     "59160",
@@ -180,7 +183,7 @@ finally:
                     if not os.path.exists('Promotions/Carrefour_hyper'):
                         os.makedirs('Promotions/Carrefour_hyper')
                     
-                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/Carrefour-'+magasins[index]+'.xlsx')
+                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/'+magasins_ref[index]+'.xlsx')
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.

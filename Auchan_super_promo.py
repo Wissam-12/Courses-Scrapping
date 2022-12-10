@@ -20,6 +20,10 @@ nb_max_pages = 3
  
 url = "https://www.auchan.fr/boutique/promos"
 
+magasins_ref =[
+    "AUCHAN_SUPER1",
+    "AUCHAN_SUPER2",
+]
 magasins = [
     "Lyon",
     "Toulouse"
@@ -163,7 +167,7 @@ finally:
                     if not os.path.exists('Promotions/Auchan_super'):
                         os.makedirs('Promotions/Auchan_super')
                     
-                    workbook = xlsxwriter.Workbook('Promotions/Auchan_super/Auchan_' + magasins[index] + '.xlsx')
+                    workbook = xlsxwriter.Workbook('Promotions/Auchan_super/' + magasins_ref[index] + '.xlsx')
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
