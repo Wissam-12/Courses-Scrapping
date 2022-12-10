@@ -29,7 +29,6 @@ def getArticleInfo(art):
         image = item.find_element(By.TAG_NAME,"img").get_attribute("data-src")
         name = item.find_element(By.CLASS_NAME , 'ds-title')
         price = item.find_element(By.CLASS_NAME , 'product-price__amount-value')
-        print([id,image,name.text,price.text])
         return [id,image,name.text,price.text]
     except:
         return []
@@ -38,7 +37,6 @@ def checkIfHyper(name):
     return not("Market" in name) and not("City " in name) and not("Express " in name) and not("Contact " in name) and not("Bio " in name) and not("Montagne " in name)
 
 
-start = time.time()
 PATH = "Web Drivers\chromedriver.exe"
 
 driver = webdriver.Chrome(PATH)
@@ -48,7 +46,7 @@ url = "https://www.carrefour.fr/"
 
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = 5
-nb_page_cpt = 1
+
 #Change to True to get all Carrefour products without price
 all_products = False
 
@@ -70,21 +68,23 @@ try :
 finally:
     for index in range(len(magasins)):
         try:
-            print(magasins)
-            print(index)
             found_hyper = False
+            nb_page_cpt = 1
+            start = time.time()
             if not(all_products):
                 if index>0:
-                     driver.execute_script("window.scrollTo(0, 0)")
+                    print("Going Back!")
+                    resetButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'data-promotions')))
+                    resetButton.click()
+                    driver.execute_script("window.scrollTo(0, 0)")
                 #Choosing Drive ===========================================================================================================================
-                choose_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'pill-group__action')))
+                choose_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'pill-group__action')))
                 choose_drive.click()
-                # else:
-                #     print("immmm")
+                
                 if index>0:
-                    change_drive = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CSS_SELECTOR , '.pl-button-deprecated.drive-service-summary__action.pl-button-deprecated--tertiary')))
+                    change_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CSS_SELECTOR , '.pl-button-deprecated.drive-service-summary__action.pl-button-deprecated--tertiary')))
                     change_drive.click()
-                print("*****************")
+
                 results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
                 search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
                 search.send_keys(magasins[index])
@@ -139,7 +139,7 @@ finally:
                                 nb_page = int(driver.current_url.split('page=',1)[1])
                             else:
                                 nb_page = 1
-                            print("-----------------------------------")
+                            
                             if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
                                 nb_page_cpt += 1
@@ -149,35 +149,28 @@ finally:
                             
                     #Iterating in products ==============================================================================================================
                     #Save the html page ==========================================
-                    print("save data")
                     WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
                     html = driver.page_source
                     #open the page with beautifulSoup
                     soup = BeautifulSoup(html, "html.parser")
-                    print("-------------------")
                     items = soup.find_all(class_="product-grid-item")
-                    print(len(items))
                     #iterate in products
                     for item in items:
                         try:
-                            print("*****************************")
                             promoRef = []
                             promo = ""
                             # product-thumbnail__commercials
-                            try :
+                            try:
                                 promoRef = item.find_all(class_='promotion-description__labels')
-                            finally :
-                                try :
+                            finally:
+                                try:
                                     for onePromo in promoRef:
                                         promo += onePromo.text + " | "
-                                    print(promo)
                                 finally:
                                     price = item.find(class_='product-price__amount-value').text
                                     code = item.find(class_='ds-product-card-refonte')["id"]
                                     data.append([code, promo, price])
-                                    print([code, promo, price])
                         except:
-                            print("probleeeeeeeme")
                             continue
                     
                 
@@ -191,7 +184,7 @@ finally:
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
-                    worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                    worksheet.add_table('A1:C{0}'.format(len(data)+1), {'data': data,
                                                 'columns': [{'header': 'CODE_BAR'},
                                                             {'header': 'PROMOTION'},
                                                             {'header': 'PRIX'},
@@ -205,7 +198,7 @@ finally:
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
-                    worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
+                    worksheet.add_table('A1:D{0}'.format(len(data)+1), {'data': data,
                                                 'columns': [{'header': 'CODE_BAR'},
                                                             {'header': 'IMAGE'},
                                                             {'header': 'DESIGNATION'},
@@ -216,12 +209,11 @@ finally:
                     
             else:
                 print("Aucun Hyper pour ce code postal:",magasins[index])  
-        except:
+        except Exception as e:
+            print(e)
             pass
         #Print Progress
         cpt+=1
-        print(cpt*100/len(magasins),"%")
+        print(cpt*100/len(magasins),"%"," time : ", time.time() - start)
 
-driver.quit()        
-
-print(" time : ", time.time() - start)
+driver.quit()

@@ -21,8 +21,8 @@ nb_max_pages = 3
 url = "https://www.auchan.fr/boutique/promos"
 
 magasins = [
-    "Massieux",
-    "Marseille"
+    "Lyon",
+    "Toulouse"
 ]
 all_products = False
 
@@ -162,23 +162,24 @@ finally:
                     for i in range(0, len(id_product)):
                         infos[i].append(id_product[i][0])
                     data += infos
-
-                # Save Data to Excel File ===============================================================================
-                # Create Folder if not exist
+                    print("Data: ",data)
+                if len(data)>0:
+                    # Save Data to Excel File ===============================================================================
+                    # Create Folder if not exist
                     if not os.path.exists('Promotions/Auchan_super'):
                         os.makedirs('Promotions/Auchan_super')
-                
-                workbook = xlsxwriter.Workbook('Promotions/Auchan_super/Auchan_' + magasins[index] + '.xlsx')
-                worksheet = workbook.add_worksheet("Listing")
+                    
+                    workbook = xlsxwriter.Workbook('Promotions/Auchan_super/Auchan_' + magasins[index] + '.xlsx')
+                    worksheet = workbook.add_worksheet("Listing")
 
-                # Add a table to the worksheet.
-                worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
-                                            'columns': [{'header': 'PRODUCT_HEADER'},
-                                                        {'header': 'PROMO'},
-                                                        {'header': 'PRIX'},
-                                                        {'header': 'CODE_BAR'},
-                                                        ]})
-                workbook.close()
+                    # Add a table to the worksheet.
+                    worksheet.add_table('A1:D{0}'.format(len(data)+1), {'data': data,
+                                                'columns': [{'header': 'PRODUCT_HEADER'},
+                                                            {'header': 'PROMO'},
+                                                            {'header': 'PRIX'},
+                                                            {'header': 'CODE_BAR'},
+                                                            ]})
+                    workbook.close()
                 print("--- %s seconds ---" % (time.time() - start_time))
             else:
                 print("Aucun Supermarché Auchan pour cette adresse : "+magasins[index])

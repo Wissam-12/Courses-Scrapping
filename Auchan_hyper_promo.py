@@ -164,21 +164,23 @@ finally:
                     data += infos
 
                 # Save Data to Excel File ===============================================================================
-                # Create Folder if not exist
+                if len(data)>0:
+                    # Create Folder if not exist
                     if not os.path.exists('Promotions/Auchan_hyper'):
                         os.makedirs('Promotions/Auchan_hyper')
-                
-                workbook = xlsxwriter.Workbook('Promotions/Auchan_hyper/Auchan_' + magasins[index] + '.xlsx')
-                worksheet = workbook.add_worksheet("Listing")
+                    
+                    workbook = xlsxwriter.Workbook('Promotions/Auchan_hyper/Auchan_' + magasins[index] + '.xlsx')
+                    worksheet = workbook.add_worksheet("Listing")
 
-                # Add a table to the worksheet.
-                worksheet.add_table('A1:D{0}'.format(len(data)), {'data': data,
-                                            'columns': [{'header': 'PRODUCT_HEADER'},
-                                                        {'header': 'PROMO'},
-                                                        {'header': 'PRIX'},
-                                                        {'header': 'CODE_BAR'},
-                                                        ]})
-                workbook.close()
+                    # Add a table to the worksheet.
+                    worksheet.add_table('A1:D{0}'.format(len(data)+1), {'data': data,
+                                                'columns': [{'header': 'PRODUCT_HEADER'},
+                                                            {'header': 'PROMO'},
+                                                            {'header': 'PRIX'},
+                                                            {'header': 'CODE_BAR'},
+                                                            ]})
+                    workbook.close()
+                
                 print("--- %s seconds ---" % (time.time() - start_time))
             else:
                 print("Aucun Hypermarché Auchan pour cette adresse : "+magasins[index])
