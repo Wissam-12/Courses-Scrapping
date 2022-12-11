@@ -12,12 +12,12 @@ import math
 
 #Liste de codes postaux ========================================================================================
 magasins_ref =[
-    "CARREFOUR_HYPER1",
-    "CARREFOUR_HYPER2",
+    "CARREFOUR_MARKET1",
+    "CARREFOUR_MARKET2",
 ]
 magasins = [
-    "16000",
-    "59160",
+    "59000",
+    "64120"
 ]
 
 def chunks(l, n):
@@ -36,9 +36,8 @@ def getArticleInfo(art):
     except:
         return []
 
-def checkIfHyper(name):
-    return not("Market" in name) and not("City " in name) and not("Express " in name) and not("Contact " in name) and not("Bio " in name) and not("Montagne " in name)
-
+def checkIfMarket(name):
+    return "Market" in name
 
 PATH = "Web Drivers\chromedriver.exe"
 
@@ -107,7 +106,7 @@ finally:
                     choice_button_cont = choice.find_element(By.CLASS_NAME,"store-card__info-item")
                     choice_name = choice.find_element(By.CSS_SELECTOR,'.ds-title.ds-title--s').text
 
-                    if checkIfHyper(choice_name):
+                    if checkIfMarket(choice_name):
                         try:
                             choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
                             choice_button.click()
@@ -142,10 +141,11 @@ finally:
                                 nb_page = int(driver.current_url.split('page=',1)[1])
                             else:
                                 nb_page = 1
-                            
+
                             if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
                                 nb_page_cpt += 1
+
                         except Exception as e:
                             searching = False
                             sameUrl = False
@@ -163,10 +163,10 @@ finally:
                             promoRef = []
                             promo = ""
                             # product-thumbnail__commercials
-                            try:
+                            try :
                                 promoRef = item.find_all(class_='promotion-description__labels')
-                            finally:
-                                try:
+                            finally :
+                                try :
                                     for onePromo in promoRef:
                                         promo += onePromo.text + " | "
                                 finally:
@@ -176,14 +176,15 @@ finally:
                         except:
                             continue
                     
+                    
                 
                 #Save Data to Excel File ==================================================-=============================
                 #Create Folder if not exist
                 if not(all_products):
-                    if not os.path.exists('Promotions/Carrefour_hyper'):
-                        os.makedirs('Promotions/Carrefour_hyper')
+                    if not os.path.exists('Promotions/Carrefour_market'):
+                        os.makedirs('Promotions/Carrefour_market')
                     
-                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/'+magasins_ref[index]+'.xlsx')
+                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_market/'+magasins_ref[index]+'.xlsx')
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
@@ -211,7 +212,7 @@ finally:
                     workbook.close()
                     
             else:
-                print("Aucun Hyper pour ce code postal:",magasins[index])  
+                print("Aucun Market pour ce code postal:",magasins[index])  
         except Exception as e:
             print(e)
             pass
