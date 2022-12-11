@@ -9,7 +9,7 @@ import xlsxwriter
 import os
 import math
 
-from services.formatCarrefourPromotios import *
+from services.formatCarrefourPromotions import *
 
 #Liste de codes postaux ========================================================================================
 magasins_ref =[

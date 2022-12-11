@@ -10,7 +10,7 @@ import os
 PATH = "Web Drivers\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 
-url = "https://www.enviedebienmanger.fr/bons-de-reduction"
+url = ["https://www.mavieencouleurs.fr/a-rembourser", "https://www.mavieencouleurs.fr/bons-de-reduction", "https://www.mavieencouleurs.fr/operation-cora"]
 driver.get(url)
 data = []
 

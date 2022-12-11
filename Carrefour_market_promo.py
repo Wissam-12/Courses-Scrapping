@@ -9,7 +9,7 @@ import xlsxwriter
 import os
 import math
 
-from services.formatCarrefourPromotios import *
+from services.formatCarrefourPromotions import *
 
 #Liste de codes postaux ========================================================================================
 magasins_ref =[
@@ -151,7 +151,6 @@ finally:
                         searching = False
                         sameUrl = False
                         
-                #Iterating in products ==============================================================================================================
                 #Save the html page ==========================================
                 WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
                 html = driver.page_source
@@ -176,8 +175,6 @@ finally:
                                 data.append([code, promo, price])
                     except:
                         continue
-
-                sameUrl = False
                 
                 
             fData = formatCarrefourPromotions(data)
