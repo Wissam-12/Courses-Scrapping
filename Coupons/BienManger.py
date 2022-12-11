@@ -33,8 +33,9 @@ finally :
             description = item.find(class_= 'tooltip-text')['title']
             imageCoupon = "https://www.enviedebienmanger.fr/" + item.find(class_= 'visuel').find(class_= 'img-responsive')['src']
             imageMarque = "https://www.enviedebienmanger.fr/" + item.find(class_= 'marque-produit').find(class_= 'img-responsive')['src']
-            print([nom, reduction, description, imageCoupon, imageMarque])
-            data.append([nom, reduction, description, imageCoupon, imageMarque])
+            marque = item.find(class_= 'marque-produit').find(class_= 'img-responsive')['alt']
+            print([nom, marque])
+            data.append([nom, "", reduction, description, marque, "", imageCoupon, imageMarque, "Coupon à imprimer", url])
         if not os.path.exists('CouponsResults'):
             os.makedirs('CouponsResults')
         
@@ -42,12 +43,17 @@ finally :
         worksheet = workbook.add_worksheet("Listing")
 
         # Add a table to the worksheet.
-        worksheet.add_table('A1:E{0}'.format(len(data)), {'data': data,
+        worksheet.add_table('A1:J{0}'.format(len(data)), {'data': data,
                                     'columns': [{'header': 'NOM'},
-                                                {'header': 'REDUCTION'},
-                                                {'header': 'DESCRIPTION'},
-                                                {'header': 'IMAGE_COUPON'},
-                                                {'header': 'IMAGE_MARQUE'}
+                                            {'header': 'CODE_BAR'},
+                                            {'header': 'REDUCTION'},
+                                            {'header': 'DESCRIPTION'},
+                                            {'header': 'MARQUE'},
+                                            {'header': 'DATE_VALIDITE'},
+                                            {'header': 'IMAGE_COUPON'},
+                                            {'header': 'IMAGE_MARQUE'},
+                                            {'header': 'TYPE_COUPON'},
+                                            {'header': 'LIEN'}
                                                 ]})
 
         workbook.close()
