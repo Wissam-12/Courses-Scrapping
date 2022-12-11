@@ -9,6 +9,7 @@ import requests
 import xlsxwriter
 import os
 
+from services.formatAuchanPromotions import *
  
 PATH = "web Drivers\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
@@ -160,8 +161,10 @@ finally:
                     for i in range(0, len(id_product)):
                         infos[i].append(id_product[i][0])
                     data += infos
-                    
-                if len(data)>0:
+                
+                fData = formatAuchanPromotions(data)
+
+                if len(fData)>0:
                     # Save Data to Excel File ===============================================================================
                     # Create Folder if not exist
                     if not os.path.exists('Promotions/Auchan_super'):
@@ -171,7 +174,7 @@ finally:
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
-                    worksheet.add_table('A1:D{0}'.format(len(data)+1), {'data': data,
+                    worksheet.add_table('A1:D{0}'.format(len(fData)+1), {'data': fData,
                                                 'columns': [{'header': 'PRODUCT_HEADER'},
                                                             {'header': 'PROMO'},
                                                             {'header': 'PRIX'},
