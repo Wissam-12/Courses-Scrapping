@@ -9,6 +9,7 @@ import xlsxwriter
 import os
 import math
 
+from services.formatCarrefourPromotios import *
 
 #Liste de codes postaux ========================================================================================
 magasins_ref =[
@@ -176,7 +177,7 @@ finally:
                         except:
                             continue
                     
-                
+                fData = formatCarrefourPromotions(data)
                 #Save Data to Excel File ==================================================-=============================
                 #Create Folder if not exist
                 if not(all_products):
@@ -187,10 +188,12 @@ finally:
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
-                    worksheet.add_table('A1:C{0}'.format(len(data)+1), {'data': data,
+                    worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
                                                 'columns': [{'header': 'CODE_BAR'},
-                                                            {'header': 'PROMOTION'},
                                                             {'header': 'PRIX'},
+                                                            {'header': 'TYPE_PROMOTION'},
+                                                            {'header': 'NUM_PRODUIT'},
+                                                            {'header': 'REDUCTION'},
                                                             ]})
                     workbook.close()
                 else:
@@ -201,11 +204,12 @@ finally:
                     worksheet = workbook.add_worksheet("Listing")
 
                     # Add a table to the worksheet.
-                    worksheet.add_table('A1:D{0}'.format(len(data)+1), {'data': data,
+                    worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
                                                 'columns': [{'header': 'CODE_BAR'},
-                                                            {'header': 'IMAGE'},
-                                                            {'header': 'DESIGNATION'},
                                                             {'header': 'PRIX'},
+                                                            {'header': 'TYPE_PROMOTION'},
+                                                            {'header': 'NUM_PRODUIT'},
+                                                            {'header': 'REDUCTION'},
                                                             ]})
 
                     workbook.close()
