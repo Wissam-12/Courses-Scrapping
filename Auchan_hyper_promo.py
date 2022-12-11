@@ -60,7 +60,7 @@ finally:
             if not(all_products):
                 if first:
                     #Choosing Drive =======================================================================================================
-                    button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME , 'context-header__button')))
+                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
                     button.click()
                     search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
                     search.send_keys(magasins[index])
@@ -137,7 +137,8 @@ finally:
                             productHeader = "vide"
                             # product-thumbnail__commercials
                             try :
-                                promoRef = item.find_all(class_='product-discount-label')
+                                # promoRef = item.find_all(class_='product-discount-label')
+                                promoRef = []
                             finally :
                                 try :
                                     promoRef += item.find_all(class_='product-discount')
@@ -145,12 +146,14 @@ finally:
                                         promo += onePromo.text + " | "
                                     
                                 finally:
+                                    if len(promo)>=3:
+                                        promo = promo[:-3]
                                     try :
                                         productHeader = item.find(class_='product-thumbnail__header').text
                                     finally:
                                         price = item.find(class_='product-price').text
                                         cpt+=1
-                                        infos.append([productHeader, promo, price])
+                                        infos.append([promo, price])
                                         
                                         links.append(id_link)
                         except Exception as e:
