@@ -10,11 +10,12 @@ import os
 PATH = "Web Drivers\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 
-urls = ["https://www.mavieencouleurs.fr/a-rembourser", "https://www.mavieencouleurs.fr/bons-de-reduction"]
+urls = ["https://www.mavieencouleurs.fr/a-rembourser", "https://www.mavieencouleurs.fr/bons-de-reduction", "https://www.mavieencouleurs.fr/operation-cora"]
 types = ["Coupon sur Application", "Coupon à imprimer", "Offre de remboursement"]
 data = []
 first = True
-for i in range(2):
+for i in range(3):
+    print(urls[i])
     driver.get(urls[i])
     try :
         if first:
@@ -22,17 +23,35 @@ for i in range(2):
             myCookies.click()
     finally :
         try :
-            close = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'popin_recrut_close')))
-            close.click()
+            if first:
+                close = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'popin_recrut_close')))
+                close.click()
         except:
             print("problem")
         finally :
             first = False
+            scroll = True
+            driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
+            ToutBons = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'grid-cards')))
+            last_height = ToutBons.size['height']
+            print("size : ", ToutBons.size['height'])
+            while scroll :
+                driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
+                ToutBons = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'grid-cards')))
+                new_height = ToutBons.size['height']
+                print("size : ", ToutBons.size['height'])
+                sc = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, 'ajax-infinite-scroll-feed')))
+                footer = driver.find_element(By.ID, 'page-content').find_element(By.TAG_NAME, 'footer')
+                if(sc.get_attribute("style") == "display: none;") and (last_height == new_height):
+                    scroll = False
+                else:
+                    last_height = new_height
             ToutBons = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'grid-cards')))
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             bons = soup.find(class_= 'grid-cards')
             items = bons.find_all(class_= "masonry-grid-cards")
+            print("****************** ", len(items))
             for item in items :
                 try :
                     code = item.find(class_ = 'discount-coupon')['data-code-coupon']
