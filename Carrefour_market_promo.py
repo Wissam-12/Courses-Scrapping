@@ -128,6 +128,7 @@ finally:
             sameUrl = True
             nb_page = 0
             prev_page = 0
+            reload_count = 0
             data = []
             while sameUrl:
                 if nb_page != 0:
@@ -150,6 +151,11 @@ finally:
 
                         print(prev_page,nb_page)
                         if prev_page == nb_page:
+                            reload_count += 1
+                        else:
+                            reload_count = 0
+
+                        if reload_count > 5:
                             searching = False
                             sameUrl = False
 
