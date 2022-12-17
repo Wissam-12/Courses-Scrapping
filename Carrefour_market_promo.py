@@ -149,7 +149,9 @@ finally:
                             searching = False
                             nb_page_cpt += 1
 
-                        print(prev_page,nb_page)
+                        # To test the end of the search,
+                        # if nb_page didn't change (nb_page == prev_page) five times,
+                        # the search is over
                         if prev_page == nb_page:
                             reload_count += 1
                         else:

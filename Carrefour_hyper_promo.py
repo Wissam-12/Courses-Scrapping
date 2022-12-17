@@ -149,7 +149,10 @@ finally:
                             if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
                                 nb_page_cpt += 1
-
+                            
+                            # To test the end of the search,
+                            # if nb_page didn't change (nb_page == prev_page) five times,
+                            # the search is over
                             if prev_page == nb_page:
                                 reload_count += 1
                             else:
