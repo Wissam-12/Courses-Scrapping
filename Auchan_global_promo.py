@@ -119,9 +119,6 @@ finally:
                 infos[i].append(id_product[i][0])
             data += infos
 
-            if nb_page > 9:
-                sameUrl = False
-
         fData = formatAuchanPromotions(data)
                                 
         # Save Data to Excel File ===============================================================================
