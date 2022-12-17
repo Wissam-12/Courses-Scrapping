@@ -134,7 +134,7 @@ finally:
     if not os.path.exists('Promotions/Carrefour'):
         os.makedirs('Promotions/Carrefour')
     
-    workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour.xlsx')
+    workbook = xlsxwriter.Workbook('Promotions/Carrefour/Carrefour.xlsx')
     worksheet = workbook.add_worksheet("Listing")
 
     # Add a table to the worksheet.

@@ -51,16 +51,9 @@ url = "https://www.carrefour.fr/"
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = 5
 
-#Change to True to get all Carrefour products without price
-all_products = False
-
 driver.get(url)
 first = True #Check if driver got first page
 cpt = 0 #Check Progress in categories
-
-#all_products don't have market
-if all_products:
-    magasins = [""]
 
 try :
     myCookies = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID , 'onetrust-reject-all-handler')))
@@ -75,51 +68,51 @@ finally:
             found_hyper = False
             nb_page_cpt = 1
             start = time.time()
-            if not(all_products):
-                if index>0:
-                    print("Going Back!")
-                    resetButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'data-promotions')))
-                    resetButton.click()
-                    driver.execute_script("window.scrollTo(0, 0)")
-                #Choosing Drive ===========================================================================================================================
-                choose_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'pill-group__action')))
-                choose_drive.click()
-                
-                if index>0:
-                    change_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CSS_SELECTOR , '.pl-button-deprecated.drive-service-summary__action.pl-button-deprecated--tertiary')))
-                    change_drive.click()
+            
+            if index>0:
+                print("Going Back!")
+                resetButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'data-promotions')))
+                resetButton.click()
+                driver.execute_script("window.scrollTo(0, 0)")
+            #Choosing Drive ===========================================================================================================================
+            choose_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'pill-group__action')))
+            choose_drive.click()
+            
+            if index>0:
+                change_drive = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CSS_SELECTOR , '.pl-button-deprecated.drive-service-summary__action.pl-button-deprecated--tertiary')))
+                change_drive.click()
 
-                results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
-                search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
-                search.send_keys(magasins[index])
-                search.click()
+            results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
+            search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
+            search.send_keys(magasins[index])
+            search.click()
+            sleep(1)
+            search_choices = []
+            while len(search_choices)<2:
+                search_choices = driver.find_elements(By.CSS_SELECTOR,'ul.suggestions-input__suggestions li')
                 sleep(1)
-                search_choices = []
-                while len(search_choices)<2:
-                    search_choices = driver.find_elements(By.CSS_SELECTOR,'ul.suggestions-input__suggestions li')
-                    sleep(1)
-                search_choices[1].click()
-                sleep(1)
-                search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
-                search_ok.click()
-                WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'drive-service-list__list-item')))
-                choices = driver.find_elements(By.CLASS_NAME,"drive-service-list__list-item")
-                for choice in choices:
-                    choice_button_cont = choice.find_element(By.CLASS_NAME,"store-card__info-item")
-                    choice_name = choice.find_element(By.CSS_SELECTOR,'.ds-title.ds-title--s').text
+            search_choices[1].click()
+            sleep(1)
+            search_ok = results.find_element(By.CLASS_NAME,"pl-input-text-group__append")
+            search_ok.click()
+            WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME , 'drive-service-list__list-item')))
+            choices = driver.find_elements(By.CLASS_NAME,"drive-service-list__list-item")
+            for choice in choices:
+                choice_button_cont = choice.find_element(By.CLASS_NAME,"store-card__info-item")
+                choice_name = choice.find_element(By.CSS_SELECTOR,'.ds-title.ds-title--s').text
 
-                    if checkIfHyper(choice_name):
-                        try:
-                            choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
-                            choice_button.click()
-                            found_hyper = True
-                            break
-                        except:
-                            pass
-                if found_hyper:
-                    sleep(5)
+                if checkIfHyper(choice_name):
+                    try:
+                        choice_button = choice_button_cont.find_element(By.CLASS_NAME,"pl-button-deprecated")
+                        choice_button.click()
+                        found_hyper = True
+                        break
+                    except:
+                        pass
+            if found_hyper:
+                sleep(5)
 
-            if found_hyper or all_products:
+            if found_hyper:
                 # ------------------------------ Nombre de pages ----------------------------------
                 WebDriverWait(driver,60).until(EC.presence_of_element_located((By.CLASS_NAME , 'search-results-count--promotion')))
                 promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text
@@ -197,39 +190,21 @@ finally:
                 fData = formatCarrefourPromotions(data)
                 #Save Data to Excel File ==================================================-=============================
                 #Create Folder if not exist
-                if not(all_products):
-                    if not os.path.exists('Promotions/Carrefour_hyper'):
-                        os.makedirs('Promotions/Carrefour_hyper')
-                    
-                    workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/'+magasins_ref[index]+'.xlsx')
-                    worksheet = workbook.add_worksheet("Listing")
+                if not os.path.exists('Promotions/Carrefour_hyper'):
+                    os.makedirs('Promotions/Carrefour_hyper')
+                
+                workbook = xlsxwriter.Workbook('Promotions/Carrefour_hyper/'+magasins_ref[index]+'.xlsx')
+                worksheet = workbook.add_worksheet("Listing")
 
-                    # Add a table to the worksheet.
-                    worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
-                                                'columns': [{'header': 'CODE_BAR'},
-                                                            {'header': 'PRIX'},
-                                                            {'header': 'TYPE_PROMOTION'},
-                                                            {'header': 'NUM_PRODUIT'},
-                                                            {'header': 'REDUCTION'},
-                                                            ]})
-                    workbook.close()
-                else:
-                    if not os.path.exists('Promotions/Carrefour'):
-                        os.makedirs('Promotions/Carrefour')
-                    
-                    workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour.xlsx')
-                    worksheet = workbook.add_worksheet("Listing")
-
-                    # Add a table to the worksheet.
-                    worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
-                                                'columns': [{'header': 'CODE_BAR'},
-                                                            {'header': 'PRIX'},
-                                                            {'header': 'TYPE_PROMOTION'},
-                                                            {'header': 'NUM_PRODUIT'},
-                                                            {'header': 'REDUCTION'},
-                                                            ]})
-
-                    workbook.close()
+                # Add a table to the worksheet.
+                worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
+                                            'columns': [{'header': 'CODE_BAR'},
+                                                        {'header': 'PRIX'},
+                                                        {'header': 'TYPE_PROMOTION'},
+                                                        {'header': 'NUM_PRODUIT'},
+                                                        {'header': 'REDUCTION'},
+                                                        ]})
+                workbook.close()
                     
             else:
                 print("Aucun Hyper pour ce code postal:",magasins[index])  

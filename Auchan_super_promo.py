@@ -29,7 +29,6 @@ magasins = [
     "33800",
     "33130"
 ]
-all_products = False
 
 def get_link(link):
     ids = []
@@ -51,8 +50,6 @@ try :
     if first:
         myCookies = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID , 'onetrust-accept-btn-handler')))
         myCookies.click()
-        if all_products:
-            first = False
 finally:
     for index in range(len(magasins)):
         found_magasin = False
@@ -61,42 +58,41 @@ finally:
         # if index>0:
         #     driver.get(url)
         try:
-            if not(all_products):
-                if first:
-                    #Choosing Drive =======================================================================================================
-                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
-                    button.click()
+            if first:
+                #Choosing Drive =======================================================================================================
+                button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
+                button.click()
+                try:
+                    change_drive = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey-overlay-details__switch--link')))
+                    change_drive.click()
+                except:
+                    pass
+                search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
+                search.send_keys(magasins[index])
+                suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
+                elem = suggestions.find_element(By.TAG_NAME , 'li')
+                elem.click()
+                WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
+                choices = driver.find_elements(By.CLASS_NAME , 'journey-offering-context__wrapper')
+                choice = None
+                for i in range(len(choices)):
                     try:
-                        change_drive = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey-overlay-details__switch--link')))
-                        change_drive.click()
+                        name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
+                        if(checkIfSuper(name)):
+                            choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
+                            found_magasin = True
+                            break
                     except:
                         pass
-                    search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
-                    search.send_keys(magasins[index])
-                    suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
-                    elem = suggestions.find_element(By.TAG_NAME , 'li')
-                    elem.click()
-                    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
-                    choices = driver.find_elements(By.CLASS_NAME , 'journey-offering-context__wrapper')
-                    choice = None
-                    for i in range(len(choices)):
-                        try:
-                            name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
-                            if(checkIfSuper(name)):
-                                choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
-                                found_magasin = True
-                                break
-                        except:
-                            pass
-                    
-                    if found_magasin:
-                        choice.click()
-
-                    first = False
+                
                 if found_magasin:
-                    driver.implicitly_wait(3)
-                    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
+                    choice.click()
+
+                first = False
+
             if found_magasin:
+                driver.implicitly_wait(3)
+                WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
                 #Navigating pages =======================================================================================================
                 searching = True
                 sameUrl = True
