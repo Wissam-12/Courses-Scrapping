@@ -56,6 +56,7 @@ finally:
         try:
             if first:
                 #Choosing Drive =======================================================================================================
+                driver.execute_script("window.scrollTo(0, 0)") #For the button to be visible
                 button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
                 button.click()
                 try:
