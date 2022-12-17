@@ -62,6 +62,11 @@ finally:
                     #Choosing Drive =======================================================================================================
                     button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
                     button.click()
+                    try:
+                        change_drive = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey-overlay-details__switch--link')))
+                        change_drive.click()
+                    except:
+                        pass
                     search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
                     search.send_keys(magasins[index])
                     suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))

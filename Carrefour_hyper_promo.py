@@ -128,6 +128,7 @@ finally:
                 searching = True
                 sameUrl = True
                 nb_page = 0
+                prev_page = 0
                 data = []
                 while sameUrl:
                     if nb_page != 0:
@@ -147,6 +148,13 @@ finally:
                             if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                                 searching = False
                                 nb_page_cpt += 1
+
+                            if prev_page == nb_page:
+                                searching = False
+                                sameUrl = False
+
+                            prev_page = nb_page
+                            
                         except Exception as e:
                             searching = False
                             sameUrl = False
