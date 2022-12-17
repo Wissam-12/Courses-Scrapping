@@ -71,7 +71,6 @@ finally:
                     
             #Iterating in products ==============================================================================================================
             #Save the html page ==========================================
-            WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
             html = driver.page_source
             #open the page with beautifulSoup
             soup = BeautifulSoup(html, "html.parser")
