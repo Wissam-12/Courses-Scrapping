@@ -61,15 +61,15 @@ finally:
     searching = True
     sameUrl = True
     nb_page = 0
-    prev_page = 0
-    reload_count = 0
     data = []
     while sameUrl:
         if nb_page != 0:
             if(nb_page <= NBpromoPage):
-                nb_page += 1
                 driver.refresh()
                 searching = True
+            else:
+                searching = False
+                sameUrl = False
         while searching:
             try:
                 footer = driver.find_element(By.ID,"colophon")
@@ -81,21 +81,8 @@ finally:
 
                 if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                     searching = False
+                    nb_page += 1
                     nb_page_cpt += 1
-
-                # To test the end of the search,
-                # if nb_page didn't change (nb_page == prev_page) five times,
-                # the search is over
-                if prev_page == nb_page:
-                    reload_count += 1
-                else:
-                    reload_count = 0
-
-                if reload_count > 5:
-                    searching = False
-                    sameUrl = False
-
-                prev_page = nb_page
 
             except Exception as e:
                 searching = False
