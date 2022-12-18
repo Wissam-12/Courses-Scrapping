@@ -27,9 +27,8 @@ magasins_ref =[
 ]
 magasins = [
     "33800",
-    "31010"
+    "33130"
 ]
-all_products = False
 
 def get_link(link):
     ids = []
@@ -51,46 +50,49 @@ try :
     if first:
         myCookies = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID , 'onetrust-accept-btn-handler')))
         myCookies.click()
-        if all_products:
-            first = False
 finally:
     for index in range(len(magasins)):
         found_magasin = False
         first = True
         start_time = time.time()
-        # if index>0:
-        #     driver.get(url)
+        
         try:
-            if not(all_products):
-                if first:
-                    #Choosing Drive =======================================================================================================
-                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
-                    button.click()
-                    search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
-                    search.send_keys(magasins[index])
-                    suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
-                    elem = suggestions.find_element(By.TAG_NAME , 'li')
-                    elem.click()
-                    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
-                    choices = driver.find_elements(By.CLASS_NAME , 'journey-offering-context__wrapper')
-                    choice = None
-                    for i in range(len(choices)):
-                        try:
-                            name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
-                            if(checkIfSuper(name)):
-                                choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
-                                found_magasin = True
-                                break
-                        except:
-                            pass
-                    
-                    if found_magasin:
-                        choice.click()
-
-                    first = False
+            if first:
+                #Choosing Drive =======================================================================================================
+                driver.execute_script("window.scrollTo(0, 0)") #For the button to be visible
+                button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'context-header__button')))
+                button.click()
+                try:
+                    change_drive = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey-overlay-details__switch--link')))
+                    change_drive.click()
+                except:
+                    pass
+                search = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'journey__search-input')))
+                search.send_keys(magasins[index])
+                suggestions= WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.ID , 'search_suggests')))
+                elem = suggestions.find_element(By.TAG_NAME , 'li')
+                elem.click()
+                WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME , 'btnJourneySubmit')))
+                choices = driver.find_elements(By.CLASS_NAME , 'journey-offering-context__wrapper')
+                choice = None
+                for i in range(len(choices)):
+                    try:
+                        name = choices[i].find_element(By.CLASS_NAME,'place-pos__name').text
+                        if(checkIfSuper(name)):
+                            choice = choices[i].find_element(By.CLASS_NAME,'btnJourneySubmit')
+                            found_magasin = True
+                            break
+                    except:
+                        pass
+                
                 if found_magasin:
-                    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
+                    choice.click()
+
+                first = False
+
             if found_magasin:
+                driver.implicitly_wait(3)
+                WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price')))
                 #Navigating pages =======================================================================================================
                 searching = True
                 sameUrl = True
@@ -187,7 +189,7 @@ finally:
                     workbook.close()
                 print((index + 1)*100/len(magasins),"%","--- %s seconds ---" % (time.time() - start_time))
             else:
-                print("Aucun Supermarché Auchan pour cette adresse : "+magasins[index])
+                print("Aucun Supermarché Auchan pour cette adresse : " + magasins[index])
         except Exception as e:
             print(e)
             pass

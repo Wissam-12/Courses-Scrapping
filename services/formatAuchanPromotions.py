@@ -4,11 +4,7 @@ def formatAuchanPromotions(data):
         id = dt[2]
         prix = dt[1]
         promos = dt[0]
-        print("-----------------------")
-        print(id)
-        print("promos", promos)
         for promo in promos.split(' | '):
-            print("*", promo, "*")
             type = 'n/a'
             numProduit = "1"
             reduction = "0"

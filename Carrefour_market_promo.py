@@ -50,16 +50,9 @@ url = "https://www.carrefour.fr/"
 #Set to -1 to make it unlimited ==========================================
 nb_max_pages = 5
 
-#Change to True to get all Carrefour products without price
-all_products = False
-
 driver.get(url)
 first = True #Check if driver got first page
 cpt = 0 #Check Progress in categories
-
-#all_products don't have market
-if all_products:
-    magasins = [""]
 
 try :
     myCookies = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID , 'onetrust-reject-all-handler')))
@@ -70,11 +63,11 @@ try :
     promotionsButton.click()
 finally:
     for index in range(len(magasins)):
-        # try:
-        found_hyper = False
-        nb_page_cpt = 1
-        start = time.time()
-        if not(all_products):
+        try:
+            found_hyper = False
+            nb_page_cpt = 1
+            start = time.time()
+            
             if index>0:
                 print("Going Back!")
                 resetButton = WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.ID , 'data-promotions')))
@@ -89,7 +82,7 @@ finally:
                 change_drive.click()
 
             results = WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME , 'suggestions-input')))
-            search = results.find_element(By.CLASS_NAME , 'pl-input-text__input--text')
+            search = WebDriverWait(results, 10).until(EC.element_to_be_clickable((By.CLASS_NAME , 'pl-input-text__input--text')))
             search.send_keys(magasins[index])
             search.click()
             sleep(1)
@@ -118,69 +111,71 @@ finally:
             if found_hyper:
                 sleep(5)
 
-        if found_hyper or all_products:
-            # ------------------------------ Nombre de pages ----------------------------------
-            WebDriverWait(driver,60).until(EC.presence_of_element_located((By.CLASS_NAME , 'search-results-count--promotion')))
-            promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text
-            NBpromoPage = math.ceil(int(promonb.split()[0])/30)
-            # -----------------------------------------------------------------------------------
-            searching = True
-            sameUrl = True
-            nb_page = 0
-            data = []
-            while sameUrl:
-                if nb_page != 0:
-                    if(nb_page <= NBpromoPage):
-                        nb_page += 1
-                        driver.refresh()
-                        searching = True
-                while searching:
-                    try:
-                        footer = driver.find_element(By.ID,"colophon")
-                        driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
-                        if "page=" in driver.current_url:
-                            nb_page = int(driver.current_url.split('page=',1)[1])
+            if found_hyper:
+                # ------------------------------ Nombre de pages ----------------------------------
+                WebDriverWait(driver,60).until(EC.presence_of_element_located((By.CLASS_NAME , 'search-results-count--promotion')))
+                promonb = driver.find_element(By.CLASS_NAME,"search-results-count--promotion").text
+                NBpromoPage = math.ceil(int(promonb.split()[0])/30)
+                # -----------------------------------------------------------------------------------
+                searching = True
+                sameUrl = True
+                nb_page = 0
+                data = []
+                while sameUrl:
+                    if nb_page != 0:
+                        if(nb_page <= NBpromoPage):
+                            driver.refresh()
+                            searching = True
                         else:
-                            nb_page = 1
-
-                        if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
                             searching = False
-                            nb_page_cpt += 1
+                            sameUrl = False
+                    while searching:
+                        try:
+                            footer = driver.find_element(By.ID,"colophon")
+                            driver.execute_script("window.scrollTo(0, {0})".format(footer.location["y"]-600))
+                            if "page=" in driver.current_url:
+                                nb_page = int(driver.current_url.split('page=',1)[1])
+                            else:
+                                nb_page = 1
 
-                    except Exception as e:
-                        searching = False
-                        sameUrl = False
+                            if(( nb_page >= nb_max_pages*nb_page_cpt) or (nb_page >= NBpromoPage)):
+                                searching = False
+                                nb_page += 1
+                                nb_page_cpt += 1
                         
-                #Save the html page ==========================================
-                WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
-                html = driver.page_source
-                #open the page with beautifulSoup
-                soup = BeautifulSoup(html, "html.parser")
-                items = soup.find_all(class_="product-grid-item")
-                #iterate in products
-                for item in items:
-                    try:
-                        promoRef = []
-                        promo = ""
-                        # product-thumbnail__commercials
-                        try :
-                            promoRef = item.find_all(class_='promotion-description__labels')
-                        finally :
+                        except Exception as e:
+                            searching = False
+                            sameUrl = False
+                            
+                    #Save the html page ==========================================
+                    WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CLASS_NAME , 'product-price__amounts')))
+                    html = driver.page_source
+                    #open the page with beautifulSoup
+                    soup = BeautifulSoup(html, "html.parser")
+                    items = soup.find_all(class_="product-grid-item")
+                    #iterate in products
+                    for item in items:
+                        try:
+                            promoRef = []
+                            promo = ""
+                            # product-thumbnail__commercials
                             try :
-                                for onePromo in promoRef:
-                                    promo += onePromo.text + " | "
-                            finally:
-                                price = item.find(class_='product-price__amount-value').text
-                                code = item.find(class_='ds-product-card-refonte')["id"]
-                                data.append([code, promo, price])
-                    except:
-                        continue
-                
-                
-            fData = formatCarrefourPromotions(data)
-            #Save Data to Excel File ==================================================-=============================
-            #Create Folder if not exist
-            if not(all_products):
+                                promoRef = item.find_all(class_='promotion-description__labels')
+                            finally :
+                                try :
+                                    for onePromo in promoRef:
+                                        promo += onePromo.text + " | "
+                                finally:
+                                    price = item.find(class_='product-price__amount-value').text
+                                    code = item.find(class_='ds-product-card-refonte')["id"]
+                                    data.append([code, promo, price])
+                        except:
+                            continue
+                    
+                    
+                fData = formatCarrefourPromotions(data)
+                #Save Data to Excel File ==================================================-=============================
+                #Create Folder if not exist
                 if not os.path.exists('Promotions/Carrefour_market'):
                     os.makedirs('Promotions/Carrefour_market')
                 
@@ -196,29 +191,12 @@ finally:
                                                         {'header': 'REDUCTION'},
                                                         ]})
                 workbook.close()
+                    
             else:
-                if not os.path.exists('Promotions/Carrefour'):
-                    os.makedirs('Promotions/Carrefour')
-                
-                workbook = xlsxwriter.Workbook('Produits/Carrefour/Carrefour.xlsx')
-                worksheet = workbook.add_worksheet("Listing")
-
-                # Add a table to the worksheet.
-                worksheet.add_table('A1:E{0}'.format(len(fData)+1), {'data': fData,
-                                            'columns': [{'header': 'CODE_BAR'},
-                                                        {'header': 'PRIX'},
-                                                        {'header': 'TYPE_PROMOTION'},
-                                                        {'header': 'NUM_PRODUIT'},
-                                                        {'header': 'REDUCTION'},
-                                                        ]})
-
-                workbook.close()
-                
-        else:
-            print("Aucun Market pour ce code postal:",magasins[index])  
-        # except Exception as e:
-        #     print(e)
-        #     pass
+                print("Aucun Market pour ce code postal:",magasins[index])  
+        except Exception as e:
+            print(e)
+            pass
         #Print Progress
         cpt+=1
         print(cpt*100/len(magasins),"%","--- %s seconds ---" % (time.time() - start))
