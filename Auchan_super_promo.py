@@ -26,8 +26,8 @@ magasins_ref =[
     "AUCHAN_SUPER2",
 ]
 magasins = [
-    "Lyon",
-    "Toulouse"
+    "33800",
+    "31010"
 ]
 all_products = False
 
